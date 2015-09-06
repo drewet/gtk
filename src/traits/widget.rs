@@ -2,14 +2,14 @@
 // See the COPYRIGHT file at the top-level directory of this distribution.
 // Licensed under the MIT license, see the LICENSE file or <http://opensource.org/licenses/MIT>
 
-use libc::{c_char, c_int};
-use glib::translate::{from_glib_none, from_glib_full, ToGlibPtr};
+use libc::c_int;
+use pango;
+use glib::translate::*;
 use ffi;
-use glib::{to_bool, to_gboolean};
+use glib::{to_bool, to_gboolean, Type};
 use gdk;
 use gdk_ffi;
 use glib;
-use glib::ffi::GType;
 
 pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
     fn show_all(&self) -> () {
@@ -54,6 +54,7 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { ffi::gtk_widget_queue_resize_no_redraw(self.unwrap_widget()) }
     }
 
+    #[cfg(gtk_3_10)]
     fn get_scale_factor(&self) -> i32 {
         unsafe { ffi::gtk_widget_get_scale_factor(self.unwrap_widget()) }
     }
@@ -110,8 +111,10 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         }
     }
 
-    fn get_ancestor(&self, widget_type: GType) -> Option<Self> {
-        let tmp = unsafe { ffi::gtk_widget_get_ancestor(self.unwrap_widget(), widget_type) };
+    fn get_ancestor(&self, widget_type: Type) -> Option<Self> {
+        let tmp = unsafe {
+            ffi::gtk_widget_get_ancestor(self.unwrap_widget(), widget_type.to_glib())
+        };
 
         if tmp.is_null() {
             None
@@ -181,6 +184,10 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { ffi::gtk_widget_override_cursor(self.unwrap_widget(), cursor, secondary_cursor) }
     }
 
+    fn override_font(&self, font: &pango::FontDescription) {
+        unsafe { ffi::gtk_widget_override_font(self.unwrap_widget(), font.to_glib_none().0) }
+    }
+
     fn queue_draw_area(&self, x: i32, y: i32, width: i32, height: i32) {
         unsafe { ffi::gtk_widget_queue_draw_area(self.unwrap_widget(), x, y, width, height) }
     }
@@ -229,6 +236,10 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
 
     fn has_screen(&self) -> bool {
         unsafe { to_bool(ffi::gtk_widget_has_screen(self.unwrap_widget())) }
+    }
+
+    fn get_screen(&self) -> gdk::Screen {
+        unsafe { from_glib_none(ffi::gtk_widget_get_screen(self.unwrap_widget())) }
     }
 
     fn get_size_request(&self) -> (i32, i32) {
@@ -301,7 +312,7 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe {
             ffi::gtk_widget_set_tooltip_markup(
                 self.unwrap_widget(),
-                markup.to_glib_none().0 as *mut c_char);
+                markup.to_glib_none().0);
         }
     }
 
@@ -316,7 +327,7 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe {
             ffi::gtk_widget_set_tooltip_text(
                 self.unwrap_widget(),
-                text.to_glib_none().0 as *mut c_char);
+                text.to_glib_none().0);
         }
     }
 
@@ -332,6 +343,7 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { ffi::gtk_widget_trigger_tooltip_query(self.unwrap_widget()) }
     }
 
+    #[cfg(gtk_3_10)]
     fn get_allocated_baseline(&self) -> i32 {
         unsafe { ffi::gtk_widget_get_allocated_baseline(self.unwrap_widget()) }
     }
@@ -360,6 +372,12 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { to_bool(ffi::gtk_widget_get_double_buffered(self.unwrap_widget())) }
     }
 
+    fn get_window(&self) -> Option<gdk::Window> {
+        unsafe {
+            from_glib_none(ffi::gtk_widget_get_window(self.unwrap_widget()))
+        }
+    }
+
     fn get_has_window(&self) -> bool {
         unsafe { to_bool(ffi::gtk_widget_get_has_window(self.unwrap_widget())) }
     }
@@ -380,6 +398,7 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { to_bool(ffi::gtk_widget_get_visible(self.unwrap_widget())) }
     }
 
+    #[cfg(gtk_3_8)]
     fn is_visible(&self) -> bool {
         unsafe { to_bool(ffi::gtk_widget_is_visible(self.unwrap_widget())) }
     }
@@ -460,10 +479,12 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { ffi::gtk_widget_get_modifier_mask(self.unwrap_widget(), intent) }
     }
 
+    #[cfg(gtk_3_8)]
     fn set_opacity(&self, opacity: f64) {
         unsafe { ffi::gtk_widget_set_opacity(self.unwrap_widget(), opacity) }
     }
 
+    #[cfg(gtk_3_8)]
     fn get_opacity(&self) -> f64 {
         unsafe { ffi::gtk_widget_get_opacity(self.unwrap_widget()) }
     }
@@ -540,6 +561,7 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         (minimum_width, natural_width)
     }
 
+    #[cfg(gtk_3_10)]
     fn get_preferred_height_and_baseline_for_width(&self, width: i32) -> (i32, i32, i32, i32) {
         let mut minimum_height = 0i32;
         let mut natural_height = 0i32;
@@ -568,6 +590,7 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { ffi::gtk_widget_get_valign(self.unwrap_widget()) }
     }
 
+    #[cfg(gtk_3_10)]
     fn get_valign_with_baseline(&self) -> ::Align {
         unsafe { ffi::gtk_widget_get_valign_with_baseline(self.unwrap_widget()) }
     }
@@ -576,18 +599,22 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { ffi::gtk_widget_set_valign(self.unwrap_widget(), align) }
     }
 
+    #[cfg(gtk_3_12)]
     fn get_margin_start(&self) -> i32 {
         unsafe { ffi::gtk_widget_get_margin_start(self.unwrap_widget()) }
     }
 
+    #[cfg(gtk_3_12)]
     fn set_margin_start(&self, margin: i32) {
         unsafe { ffi::gtk_widget_set_margin_start(self.unwrap_widget(), margin) }
     }
 
+    #[cfg(gtk_3_12)]
     fn get_margin_end(&self) -> i32 {
         unsafe { ffi::gtk_widget_get_margin_end(self.unwrap_widget()) }
     }
 
+    #[cfg(gtk_3_12)]
     fn set_margin_end(&self, margin: i32) {
         unsafe { ffi::gtk_widget_set_margin_end(self.unwrap_widget(), margin) }
     }
@@ -624,6 +651,12 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { ffi::gtk_widget_set_vexpand_set(self.unwrap_widget(), to_gboolean(expand)) }
     }
 
+    fn get_style_context(&self) -> ::StyleContext {
+        unsafe {
+            ::StyleContext { pointer: ffi::gtk_widget_get_style_context(self.unwrap_widget()) }
+        }
+    }
+
     fn queue_compute_expand(&self) {
         unsafe { ffi::gtk_widget_queue_compute_expand(self.unwrap_widget()) }
     }
@@ -632,6 +665,7 @@ pub trait WidgetTrait: ::FFIWidget + ::GObjectTrait {
         unsafe { to_bool(ffi::gtk_widget_compute_expand(self.unwrap_widget(), orientation)) }
     }
 
+    #[cfg(gtk_3_10)]
     fn init_template(&self) {
         unsafe { ffi::gtk_widget_init_template(self.unwrap_widget()) }
     }

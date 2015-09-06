@@ -37,9 +37,9 @@ impl TreePath {
         }
     }
 
-    #[cfg(feature = "gtk_3_12")]
+    #[cfg(gtk_3_12)]
     pub fn new_from_indicesv(indices: &mut [i32]) -> Option<TreePath> {
-        let tmp = unsafe { ffi::gtk_tree_path_new_from_indicesv(indices.as_mut_ptr(), indices.len() as ::libc::c_ulong) };
+        let tmp = unsafe { ffi::gtk_tree_path_new_from_indicesv(indices.as_mut_ptr(), indices.len() as ::libc::size_t) };
 
         if tmp.is_null() {
             None
@@ -112,7 +112,7 @@ impl TreePath {
     }
 
     pub fn prev(&self) {
-        unsafe { ffi::gtk_tree_path_prev(self.pointer) }
+        unsafe { ffi::gtk_tree_path_prev(self.pointer); }
     }
 
     pub fn path_up(&self) -> bool {

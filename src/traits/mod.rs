@@ -7,6 +7,7 @@ pub trait FFIWidget: Sized {
     fn wrap_widget(widget: *mut ::ffi::GtkWidget) -> Self;
 }
 
+pub use self::style_provider::StyleProviderTrait;
 pub use self::widget::WidgetTrait;
 pub use self::container::ContainerTrait;
 pub use self::window::WindowTrait;
@@ -49,9 +50,11 @@ pub use self::gobject::GObjectTrait;
 pub use signal::{
     WidgetSignals,
     ButtonSignals,
+    ComboBoxSignals,
     ToolButtonSignals,
 };
 
+pub mod style_provider;
 pub mod widget;
 pub mod container;
 pub mod window;

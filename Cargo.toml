@@ -1,7 +1,8 @@
 [package]
 name = "gtk"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["The Rust-GNOME Project Developers"]
+build = "build.rs"
 
 description = "Rust bindings for the GTK+ library"
 repository = "https://github.com/rust-gnome/gtk"
@@ -16,23 +17,19 @@ keywords = ["gtk", "gnome", "GUI"]
 [lib]
 name = "gtk"
 
-[features]
-default = ["gtk_3_6"]
-gtk_3_4 = ["gtk-sys/gtk_3_4", "gdk/gdk_3_4"]
-gtk_3_6 = ["gtk-sys/gtk_3_6", "gdk/gdk_3_6", "gtk_3_4"]
-gtk_3_8 = ["gtk-sys/gtk_3_8", "gdk/gdk_3_8", "gtk_3_6"]
-gtk_3_10 = ["gtk-sys/gtk_3_10", "gdk/gdk_3_10", "cairo-rs/cairo_1_12", "gtk_3_8"]
-gtk_3_12 = ["gtk-sys/gtk_3_12", "gdk/gdk_3_12", "gtk_3_10"]
-gtk_3_14 = ["gtk-sys/gtk_3_14", "gdk/gdk_3_14", "gtk_3_12"]
+[dependencies.gtk-sys]
+path = "gtk-sys"
 
 [dependencies]
+cairo-rs = { git = "https://github.com/rust-gnome/cairo" }
+cairo-sys-rs = { git = "https://github.com/rust-gnome/cairo" }
+gdk-pixbuf-sys = { git = "https://github.com/rust-gnome/sys" }
+gdk = { git = "https://github.com/rust-gnome/gdk" }
+gdk-sys = { git = "https://github.com/rust-gnome/sys" }
+gio-sys = { git = "https://github.com/rust-gnome/sys" }
+glib = { git = "https://github.com/rust-gnome/glib" }
+glib-sys = { git = "https://github.com/rust-gnome/sys" }
+gobject-sys = { git = "https://github.com/rust-gnome/sys" }
 libc = "0.1"
-gtk-sys = "^0"
-glib = "^0"
-glib-sys = "^0"
-gdk-sys = "^0"
-gdk = "^0"
-pango-sys = "^0"
-pango = "^0"
-cairo-sys-rs = "^0"
-cairo-rs = "^0"
+pango = { git = "https://github.com/rust-gnome/pango" }
+pango-sys = { git = "https://github.com/rust-gnome/sys" }

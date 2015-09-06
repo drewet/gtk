@@ -16,15 +16,16 @@ __gtk__ expects __GTK+__, __GLib__ and __Cairo__ development files to be install
 ### Fedora
 
 ```Shell
+> sudo dnf install gtk3-devel glib2-devel
+
+# Fedora 21 and earlier
 > sudo yum install gtk3-devel glib2-devel
 ```
 
 ### OS X
 
-Install [XQuartz](http://xquartz.macosforge.org/landing/), then:
 ```Shell
-> brew install gtk+3 --without-x11
-> export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/opt/X11/lib/pkgconfig
+> brew install gtk+3
 ```
 
 ### Windows
@@ -73,23 +74,19 @@ When building documentation don't forget to specify the feature set you're using
 
 Your local copy can be accessed using your browser at
 
-`file:///{gtk_location}/target/doc/rgtk/index.html`
-
-You can also access a daily build of the docs via the internet:
-
-http://rust-ci.org/jeremyletang/rgtk/doc/rgtk/
+`file:///{gtk_location}/target/doc/gtk/index.html`
 
 ## Including gtk as a cargo dependency
 
-To include rgtk as a cargo dependency you have to add it to your Cargo.toml and specify the GTK version you want using Cargo features:
+To include gtk as a cargo dependency you have to add it to your Cargo.toml and specify the GTK version you want using Cargo features:
 ```Toml
-[dependencies.rgtk]
+[dependencies.gtk]
 git = "https://github.com/rust-gnome/gtk.git"
 features = ["gtk_3_12"]
 ```
 If it's lower than 3.6:
 ```Toml
-[dependencies.rgtk]
+[dependencies.gtk]
 git = "https://github.com/rust-gnome/gtk.git"
 features = ["gtk_3_4"]
 default-features = false
@@ -105,7 +102,7 @@ To implement __GTK+__ inheritance in rust, we implemented gtk superclasses as tr
 For your convenience the various traits are reexported in the `gtk::*` namespace as `Gtk{trait_name}Trait` so you can just use...
 
 ```Rust
-extern mod gtk;
+extern crate gtk;
 
 use gtk::*;
 ```
@@ -117,12 +114,17 @@ let button = gtk::Button:new(); // You have access to the struct methods of gtk:
                                 // as the trait methods from gtk::traits::Button as GtkButtonTrait.
 ```
 
-## Projects using rgtk
+## Projects using gtk
 * [SolidOak](https://github.com/oakes/SolidOak)
 * [rrun](https://github.com/buster/rrun)
-* [processus-viewer](https://github.com/GuillaumeGomez/processus-viewer)
+* [process-viewer](https://github.com/GuillaumeGomez/process-viewer)
 
 If you want yours to be added to this list, please create a Pull Request for it!
+
+##Screenshots
+
+![screenshot](http://guillaume-gomez.fr/image/gtk.png)
+![screenshot](http://guillaume-gomez.fr/image/gtk2.png)
 
 ## Contribute
 
